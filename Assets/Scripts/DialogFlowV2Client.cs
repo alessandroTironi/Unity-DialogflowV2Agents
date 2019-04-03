@@ -15,13 +15,13 @@ namespace Syrus.Plugins.DFV2Client
 		/// The GCP project ID.
 		/// </summary>
 		[SerializeField]
-		internal string PROJECT_ID;
+		private string projectId = string.Empty;
 
 		/// <summary>
 		/// The language used for the chatbot.
 		/// </summary>
 		[SerializeField]
-		internal string LANGUAGE_CODE;
+		private string languageCode = string.Empty;
 
 		/// <summary>
 		/// Delegate for handling errors received after a detectIntent request.
@@ -52,10 +52,16 @@ namespace Syrus.Plugins.DFV2Client
 		internal static readonly string PARAMETRIC_URL = 
 			"https://dialogflow.googleapis.com/v2/projects/{0}/agent/sessions/{1}:detectIntent";
 
+		/// <summary>
+		/// Makes a POST request to Dialogflow for detecting an intent from text.
+		/// </summary>
+		/// <param name="text">The input text.</param>
+		/// <param name="talker">The ID of the entity who is talking to the bot.</param>
+		/// <param name="languageCode">The language code of the request.</param>
 		public void DetectIntentFromText(string text, string talker, string languageCode = "")
 		{
 			if (languageCode.Length == 0)
-				languageCode = LANGUAGE_CODE;
+				languageCode = this.languageCode;
 
 			DF2QueryInput queryInput = new DF2QueryInput();
 			queryInput.Text = new DF2TextInput();
@@ -63,12 +69,18 @@ namespace Syrus.Plugins.DFV2Client
 			queryInput.Text.LanguageCode = languageCode;
 		}
 
-
+		/// <summary>
+		/// Makes a POST request to Dialogflow for detecting an intent from an event.
+		/// </summary>
+		/// <param name="eventName">The name of the event.</param>
+		/// <param name="parameters">The parameters of the event.</param>
+		/// <param name="talker">The ID of the entity who is talking to the bot.</param>
+		/// <param name="languageCode">The language code of the request.</param>
 		public void DetectIntentFromEvent(string eventName, Dictionary<string, string> parameters, 
 			string talker, string languageCode = "")
 		{
 			if (languageCode.Length == 0)
-				languageCode = LANGUAGE_CODE;
+				languageCode = this.languageCode;
 
 			DF2QueryInput queryInput = new DF2QueryInput();
 			queryInput.Event = new DF2EventInput();
@@ -107,7 +119,7 @@ namespace Syrus.Plugins.DFV2Client
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
-			string url = string.Format(PARAMETRIC_URL, PROJECT_ID, session);
+			string url = string.Format(PARAMETRIC_URL, projectId, session);
 			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");
 			
 			df2Request.SetRequestHeader("Authorization", "Bearer " + jwtJson["access_token"]);
