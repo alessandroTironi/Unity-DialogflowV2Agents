@@ -29,7 +29,6 @@ public class DF2ClientTester : MonoBehaviour
 
 	private void LogResponseText(DF2Response response)
 	{
-		Debug.Log(JsonConvert.SerializeObject(response, Formatting.Indented));
 		Debug.Log(name + " said: \"" + response.queryResult.fulfillmentText + "\"");
 		chatbotText.text = response.queryResult.fulfillmentText;
 	}

@@ -319,8 +319,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db49b6c245159184bb29102f4245984a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectId: smartrpgshop
-  languageCode: en-US
+  accessSettings: {fileID: 11400000, guid: 0f3fbb4f72398ea4da132620e497e9bf, type: 2}
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0

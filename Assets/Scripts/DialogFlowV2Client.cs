@@ -11,16 +11,10 @@ namespace Syrus.Plugins.DFV2Client
 	public class DialogFlowV2Client : MonoBehaviour 
 	{
 		/// <summary>
-		/// The GCP project ID.
+		/// The object that defines the service settings.
 		/// </summary>
 		[SerializeField]
-		private string projectId = string.Empty;
-
-		/// <summary>
-		/// The language used for the chatbot.
-		/// </summary>
-		[SerializeField]
-		private string languageCode = string.Empty;
+		private ServiceSettings accessSettings;
 
 		/// <summary>
 		/// Delegate for handling errors received after a detectIntent request.
@@ -72,7 +66,7 @@ namespace Syrus.Plugins.DFV2Client
 		public void DetectIntentFromText(string text, string talker, string languageCode = "")
 		{
 			if (languageCode.Length == 0)
-				languageCode = this.languageCode;
+				languageCode = accessSettings.LanguageCode;
 
 			DF2QueryInput queryInput = new DF2QueryInput();
 			queryInput.Text = new DF2TextInput();
@@ -93,7 +87,7 @@ namespace Syrus.Plugins.DFV2Client
 			string talker, string languageCode = "")
 		{
 			if (languageCode.Length == 0)
-				languageCode = this.languageCode;
+				languageCode = accessSettings.LanguageCode;
 
 			DF2QueryInput queryInput = new DF2QueryInput();
 			queryInput.Event = new DF2EventInput();
@@ -114,7 +108,7 @@ namespace Syrus.Plugins.DFV2Client
 			string languageCode = "")
 		{
 			if (languageCode.Length == 0)
-				languageCode = this.languageCode;
+				languageCode = accessSettings.LanguageCode;
 
 			StartCoroutine(DetectIntent(input, talker));
 		}
@@ -129,10 +123,9 @@ namespace Syrus.Plugins.DFV2Client
 		{
 			// Gets the JWT access token.
 			string accessToken = string.Empty;
-			while (!JwtCache.TryGetToken("smartrpgshopclient@smartrpgshop.iam.gserviceaccount.com",
-				out accessToken))
-				yield return JwtCache.GetToken("smartrpgshop-ea4bb047937c",
-					"smartrpgshopclient@smartrpgshop.iam.gserviceaccount.com");
+			while (!JwtCache.TryGetToken(accessSettings.ServiceAccount, out accessToken))
+				yield return JwtCache.GetToken(accessSettings.CredentialsFileName,
+					accessSettings.ServiceAccount);
 
 			// Prepares the HTTP request.
 			var settings = new JsonSerializerSettings();
@@ -140,10 +133,9 @@ namespace Syrus.Plugins.DFV2Client
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 			DF2Request request = new DF2Request(session, queryInput);
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
-			Debug.Log(jsonInput);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
-			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, projectId, session);
+			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, accessSettings.ProjectId, session);
 			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");		
 			df2Request.SetRequestHeader("Authorization", "Bearer " + accessToken);
 			df2Request.SetRequestHeader("Content-Type", "application/json");
@@ -158,7 +150,6 @@ namespace Syrus.Plugins.DFV2Client
 			else
 			{
 				string response = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
-				Debug.Log("Received response: " + response);
 				DF2Response resp = JsonConvert.DeserializeObject<DF2Response>(response);
 				ChatbotResponded?.Invoke(resp);
 				for (int i = 0; i < resp.queryResult.outputContexts.Length; i++)
