@@ -128,17 +128,11 @@ namespace Syrus.Plugins.DFV2Client
 		private IEnumerator DetectIntent(DF2QueryInput queryInput, string session)
 		{
 			// Gets the JWT access token.
-			TextAsset p12File = Resources.Load<TextAsset>("DialogflowV2/smartrpgshop-ea4bb047937c");
-			var jwt = GoogleJsonWebToken.GetJwt("smartrpgshopclient@smartrpgshop.iam.gserviceaccount.com",
-				p12File.bytes,
-				GoogleJsonWebToken.SCOPE_DIALOGFLOWV2);
-			UnityWebRequest tokenRequest = GoogleJsonWebToken.GetAccessTokenRequest(jwt);
-			yield return tokenRequest.SendWebRequest();
-			if (tokenRequest.isNetworkError || tokenRequest.isHttpError)
-				Debug.LogError("Error " + tokenRequest.responseCode + ": " + tokenRequest.error);
-			string serializedToken = Encoding.UTF8.GetString(tokenRequest.downloadHandler.data);
-			var jwtJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(serializedToken);
-			Debug.Log(jwtJson["access_token"] + " expires in " + jwtJson["expires_in"]);
+			string accessToken = string.Empty;
+			while (!JwtCache.TryGetToken("smartrpgshopclient@smartrpgshop.iam.gserviceaccount.com",
+				out accessToken))
+				yield return JwtCache.GetToken("smartrpgshop-ea4bb047937c",
+					"smartrpgshopclient@smartrpgshop.iam.gserviceaccount.com");
 
 			// Prepares the HTTP request.
 			var settings = new JsonSerializerSettings();
@@ -151,7 +145,7 @@ namespace Syrus.Plugins.DFV2Client
 
 			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, projectId, session);
 			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");		
-			df2Request.SetRequestHeader("Authorization", "Bearer " + jwtJson["access_token"]);
+			df2Request.SetRequestHeader("Authorization", "Bearer " + accessToken);
 			df2Request.SetRequestHeader("Content-Type", "application/json");
 			df2Request.uploadHandler = new UploadHandlerRaw(body);
 			df2Request.downloadHandler = new DownloadHandlerBuffer();

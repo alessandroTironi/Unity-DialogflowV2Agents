@@ -16,6 +16,7 @@ using UnityEngine.Networking;
  * - Re-implemented the GetAccessTokenRequest method for returning a UnityWebRequest object
  *   insted of a WWW object, which is deprecated.
  * - The GetJwt method now requires the raw byte array from the authentication file.
+ * - Added the JwtTokenResponse class for deserializing the web requests responses.
  */
 
 public class GoogleJsonWebToken
@@ -148,5 +149,18 @@ public static UnityWebRequest GetAccessTokenRequest(string jwt)
 		var exp = (int)issueTime.AddMinutes(55).Subtract(utc0).TotalSeconds;
 
 		return new[] { iat, exp };
+	}
+
+	[JsonObject]
+	public class JwtTokenResponse
+	{
+		[JsonProperty]
+		public string access_token { get; set; }
+
+		[JsonProperty]
+		public float expires_in { get; set; }
+
+		[JsonProperty]
+		public string token_type { get; set; }
 	}
 }
