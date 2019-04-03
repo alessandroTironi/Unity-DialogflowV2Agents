@@ -46,6 +46,18 @@ namespace Syrus.Plugins.DFV2Client
 		public event ServerResponseHandler ChatbotResponded;
 
 		/// <summary>
+		/// A delegate for handling output contexts.
+		/// </summary>
+		/// <param name="outContext">The output context the client must react to.</param>
+		public delegate void OutputContextHandler(DF2OutputContext outContext);
+
+		/// <summary>
+		/// The set of <see cref="DF2OutputContext"/> the client must react to.
+		/// </summary>
+		internal Dictionary<string, OutputContextHandler> reactionContexts =
+			new Dictionary<string, OutputContextHandler>();
+
+		/// <summary>
 		/// The default detectIntent URL where project ID and session ID are missing. 
 		/// </summary>
 		internal static readonly string PARAMETRIC_DETECT_INTENT_URL = 
@@ -153,8 +165,35 @@ namespace Syrus.Plugins.DFV2Client
 			{
 				string response = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
 				Debug.Log("Received response: " + response);
-				ChatbotResponded?.Invoke(JsonConvert.DeserializeObject<DF2Response>(response));
+				DF2Response resp = JsonConvert.DeserializeObject<DF2Response>(response);
+				ChatbotResponded?.Invoke(resp);
+				for (int i = 0; i < resp.queryResult.outputContexts.Length; i++)
+				{
+					DF2OutputContext context = resp.queryResult.outputContexts[i];
+					string[] cName = context.Name.ToLower().Split('/');
+					if (reactionContexts.ContainsKey(cName[cName.Length - 1]))
+						reactionContexts[cName[cName.Length - 1]](context);
+				}
 			}
+		}
+
+		/// <summary>
+		/// Sets the client for reacting to the specified context.
+		/// </summary>
+		/// <param name="contextName">The context name (last segment).</param>
+		/// <param name="handler">What the client must do after the context detection.</param>
+		public void ReactToContext(string contextName, OutputContextHandler handler)
+		{
+			reactionContexts[contextName.ToLower()] = handler;
+		}
+
+		/// <summary>
+		/// Stops the client from reacting to the specified context.
+		/// </summary>
+		/// <param name="contextName">The context the client must stop reacting to.</param>
+		public void StopReactingToContext(string contextName)
+		{
+			reactionContexts.Remove(contextName);
 		}
 	}
 }

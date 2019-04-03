@@ -17,6 +17,8 @@ public class DF2ClientTester : MonoBehaviour
 
 		client.ChatbotResponded += LogResponseText;
 		client.DetectIntentError += LogError;
+		client.ReactToContext("DefaultWelcomeIntent-followup", 
+			context => Debug.Log("Reacting to welcome followup"));
 
 		Dictionary<string, object> parameters = new Dictionary<string, object>()
 		{
