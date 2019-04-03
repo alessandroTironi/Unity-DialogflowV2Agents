@@ -190,6 +190,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 517095839}
+  - component: {fileID: 517095841}
+  - component: {fileID: 517095840}
   m_Layer: 0
   m_Name: DF-Client
   m_TagString: Untagged
@@ -211,6 +213,33 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &517095840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517095838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74aa9bf12f0a96945bfe51baa29b0ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &517095841
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 517095838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db49b6c245159184bb29102f4245984a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PROJECT_ID: smartrpgshop
+  ACCESS_TOKEN: ya29.c.El_gBgqH7Xk8gDYqDw6jG3BSupD1BUNI0iL45XEHIgz8iE2Id0IhZBV2qo1PvjMQaPrzd9i7a1oQyXJaXf2AsQviSvFffsWCDdWWbrpd5Sv1HKgreq3JabwcNXwTUpLZrA
+  LANGUAGE_CODE: en-US
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
