@@ -93,6 +93,21 @@ namespace Syrus.Plugins.DFV2Client
 		}
 
 		/// <summary>
+		/// Detects an intent from a user-built <see cref="DF2QueryInput"/>.
+		/// </summary>
+		/// <param name="input">The user-built <see cref="DF2QueryInput"/>.</param>
+		/// <param name="talker">The user who is talking to the chatbot.</param>
+		/// <param name="languageCode">The language code of the request.</param>
+		public void DetectIntentFromGenericInput(DF2QueryInput input, string talker,
+			string languageCode = "")
+		{
+			if (languageCode.Length == 0)
+				languageCode = this.languageCode;
+
+			StartCoroutine(DetectIntent(input, talker));
+		}
+
+		/// <summary>
 		/// Sends a <see cref="DF2QueryInput"/> object as a HTTP request to the remote
 		/// chatbot.
 		/// </summary>
