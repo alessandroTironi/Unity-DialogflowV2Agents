@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using Google.Cloud.Dialogflow.V2;
+using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -63,8 +64,8 @@ namespace Syrus.Plugins.DFV2Client
 			if (languageCode.Length == 0)
 				languageCode = this.languageCode;
 
-			DF2QueryInput queryInput = new DF2QueryInput();
-			queryInput.Text = new DF2TextInput();
+			QueryInput queryInput = new QueryInput();
+			queryInput.Text = new TextInput();
 			queryInput.Text.Text = text;
 			queryInput.Text.LanguageCode = languageCode;
 		}
@@ -76,7 +77,7 @@ namespace Syrus.Plugins.DFV2Client
 		/// <param name="parameters">The parameters of the event.</param>
 		/// <param name="talker">The ID of the entity who is talking to the bot.</param>
 		/// <param name="languageCode">The language code of the request.</param>
-		public void DetectIntentFromEvent(string eventName, Dictionary<string, string> parameters, 
+		public void DetectIntentFromEvent(string eventName, Dictionary<string, object> parameters, 
 			string talker, string languageCode = "")
 		{
 			if (languageCode.Length == 0)
@@ -88,16 +89,16 @@ namespace Syrus.Plugins.DFV2Client
 			queryInput.Event.Parameters = parameters;
 			queryInput.Event.LanguageCode = languageCode;
 
-			StartCoroutine(DetectIntent(new DF2Request(queryInput), "test"));
+			StartCoroutine(DetectIntent(queryInput, talker));
 		}
 
 		/// <summary>
 		/// Sends a <see cref="QueryInput"/> object as a HTTP request to the remote
 		/// chatbot.
 		/// </summary>
-		/// <param name="request">The input request.</param>
+		/// <param name="queryInput">The input request.</param>
 		/// <param name="session">The session ID, i.e., the ID of the user who talks to the chatbot.</param>
-		private IEnumerator DetectIntent(DF2Request request, string session)
+		private IEnumerator DetectIntent(DF2QueryInput queryInput, string session)
 		{
 			// Gets the JWT access token.
 			TextAsset p12File = Resources.Load<TextAsset>("DialogflowV2/smartrpgshop-ea4bb047937c");
@@ -116,12 +117,13 @@ namespace Syrus.Plugins.DFV2Client
 			var settings = new JsonSerializerSettings();
 			settings.NullValueHandling = NullValueHandling.Ignore;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			DF2Request request = new DF2Request(session, queryInput);
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
+			Debug.Log(jsonInput);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
 			string url = string.Format(PARAMETRIC_URL, projectId, session);
-			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");
-			
+			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");		
 			df2Request.SetRequestHeader("Authorization", "Bearer " + jwtJson["access_token"]);
 			df2Request.SetRequestHeader("Content-Type", "application/json");
 			df2Request.uploadHandler = new UploadHandlerRaw(body);
@@ -135,6 +137,7 @@ namespace Syrus.Plugins.DFV2Client
 			else
 			{
 				string response = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
+				Debug.Log("Received response: " + response);
 				ChatbotResponded?.Invoke(JsonConvert.DeserializeObject<DF2Response>(response));
 			}
 		}

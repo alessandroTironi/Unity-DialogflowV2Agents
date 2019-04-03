@@ -13,7 +13,7 @@ namespace Syrus.Plugins.DFV2Client
 		public string responseId { get; set; }
 
 		[JsonProperty]
-		public QueryResult queryResult { get; set; }
+		public DF2QueryResult queryResult { get; set; }
 	}
 }
 

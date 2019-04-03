@@ -1,9 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Syrus.Plugins.DFV2Client;
-using Google.Cloud.Dialogflow.V2;
 using Newtonsoft.Json;
+using Google.Cloud.Dialogflow.V2;
+using Google.Protobuf.WellKnownTypes;
 
 public class DF2ClientTester : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class DF2ClientTester : MonoBehaviour
 		client.ChatbotResponded += LogResponseText;
 		client.DetectIntentError += LogError;
 
-		Dictionary<string, string> parameters = new Dictionary<string, string>()
+		Dictionary<string, object> parameters = new Dictionary<string, object>()
 		{
 			{ "name", "George" }
 		};
@@ -25,7 +25,7 @@ public class DF2ClientTester : MonoBehaviour
 	private void LogResponseText(DF2Response response)
 	{
 		Debug.Log(JsonConvert.SerializeObject(response, Formatting.Indented));
-		Debug.Log(name + " said: \"" + response.queryResult.FulfillmentText + "\"");
+		Debug.Log(name + " said: \"" + response.queryResult.queryText + "\"");
 	}
 
 	private void LogError(long responseCode, string errorMessage)

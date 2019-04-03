@@ -4,16 +4,16 @@ using Newtonsoft.Json;
 namespace Syrus.Plugins.DFV2Client
 {
 	[JsonObject]
-	public class DF2EventInput 
+	public class DF2OutputContext 
 	{
 		[JsonProperty]
 		public string Name { get; set; }
 
 		[JsonProperty]
-		public Dictionary<string, object> Parameters { get; set; }
+		public int LifespanCount { get; set; }
 
 		[JsonProperty]
-		public string LanguageCode { get; set; }
+		public Dictionary<string, string> Parameters { get; set; }
 	}
 }
 
