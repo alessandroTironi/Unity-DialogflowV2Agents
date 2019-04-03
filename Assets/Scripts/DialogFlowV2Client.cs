@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace Syrus.Plugins.DFV2Client
 {
@@ -39,6 +40,17 @@ namespace Syrus.Plugins.DFV2Client
 		/// Event fired at each response from the chatbot.
 		/// </summary>
 		public event ServerResponseHandler ChatbotResponded;
+
+		/// <summary>
+		/// Delegate for handling session clear.
+		/// </summary>
+		/// <param name="session">The session ID.</param>
+		public delegate void SessionClearedHanlder(string session);
+
+		/// <summary>
+		/// Event fired whenever a session is cleared.
+		/// </summary>
+		public event SessionClearedHanlder SessionCleared;
 
 		/// <summary>
 		/// A delegate for handling output contexts.
@@ -206,6 +218,41 @@ namespace Syrus.Plugins.DFV2Client
 				inputContext.Name = string.Format(DF2Context.PARAMETRIC_CONTEXT_ID,
 					accessSettings.ProjectId, session, inputContext.Name);
 			inputContexts.Add(inputContext);
+		}
+
+		/// <summary>
+		/// Resets the specified session.
+		/// </summary>
+		/// <param name="session">The name of the session to reset.</param>
+		public void ClearSession(string session)
+		{
+			StartCoroutine(ClearSessionRequest(session));
+		}
+
+		/// <summary>
+		/// Resets the specified session.
+		/// </summary>
+		/// <param name="session">The name of the session to reset.</param>
+		private IEnumerator ClearSessionRequest(string session)
+		{
+			// Gets the JWT access token.
+			string accessToken = string.Empty;
+			while (!JwtCache.TryGetToken(accessSettings.ServiceAccount, out accessToken))
+				yield return JwtCache.GetToken(accessSettings.CredentialsFileName,
+					accessSettings.ServiceAccount);
+
+			string url = string.Format(
+				"https://dialogflow.googleapis.com/v2/projects/{0}/agent/sessions/{1}/contexts",
+				accessSettings.ProjectId, session);
+			UnityWebRequest deleteRequest = new UnityWebRequest(url);
+			deleteRequest.method = "DELETE";
+			deleteRequest.SetRequestHeader("Authorization", "Bearer " + accessToken);
+			deleteRequest.SetRequestHeader("Content-Type", "application/json");
+			yield return deleteRequest.SendWebRequest();
+			if (deleteRequest.isHttpError || deleteRequest.isNetworkError)
+				Debug.LogError(deleteRequest.responseCode + ": " + deleteRequest.error);
+			else
+				SessionCleared?.Invoke(session);
 		}
 	}
 }

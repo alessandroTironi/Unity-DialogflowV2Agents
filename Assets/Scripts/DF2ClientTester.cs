@@ -10,15 +10,18 @@ public class DF2ClientTester : MonoBehaviour
 
 	public Text chatbotText;
 
+	private DialogFlowV2Client client;
+
     // Start is called before the first frame update
     void Start()
     {
-		DialogFlowV2Client client = GetComponent<DialogFlowV2Client>();
+		client = GetComponent<DialogFlowV2Client>();
 
 		client.ChatbotResponded += LogResponseText;
 		client.DetectIntentError += LogError;
 		client.ReactToContext("DefaultWelcomeIntent-followup", 
 			context => Debug.Log("Reacting to welcome followup"));
+		client.SessionCleared += sess => Debug.Log("Cleared session " + session);
 		client.AddInputContext(new DF2Context("userdata", 1, ("name", "George")), name);
 
 		Dictionary<string, object> parameters = new Dictionary<string, object>()
@@ -26,6 +29,7 @@ public class DF2ClientTester : MonoBehaviour
 			{ "name", "George" }
 		};
 		client.DetectIntentFromEvent("test-inputcontexts", parameters, name);
+
     }
 
 	private void LogResponseText(DF2Response response)
@@ -43,13 +47,18 @@ public class DF2ClientTester : MonoBehaviour
     
 	public void SendText()
 	{
-		GetComponent<DialogFlowV2Client>().DetectIntentFromText(content.text, session.text);
+		client.DetectIntentFromText(content.text, session.text);
 	}
 
 
 	public void SendEvent()
 	{
-		GetComponent<DialogFlowV2Client>().DetectIntentFromEvent(content.text,
+		client.DetectIntentFromEvent(content.text,
 			new Dictionary<string, object>(), session.text);
+	}
+
+	public void Clear()
+	{
+		client.ClearSession(name);
 	}
 }
