@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Newtonsoft.Json;
-using Google.Cloud.Dialogflow.V2;
+﻿using Newtonsoft.Json;
 
 namespace Syrus.Plugins.DFV2Client
 {
