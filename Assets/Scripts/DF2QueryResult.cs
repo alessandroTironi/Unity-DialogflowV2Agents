@@ -25,7 +25,7 @@ namespace Syrus.Plugins.DFV2Client
 		public Dictionary<string, object>[] fulfillmentMessages { get; set; }
 
 		[JsonProperty]
-		public DF2OutputContext[] outputContexts { get; set; }
+		public DF2Context[] outputContexts { get; set; }
 
 		[JsonProperty]
 		public Dictionary<string, object> intent { get; set; }

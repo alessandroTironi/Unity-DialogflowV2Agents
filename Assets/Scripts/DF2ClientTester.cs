@@ -19,16 +19,18 @@ public class DF2ClientTester : MonoBehaviour
 		client.DetectIntentError += LogError;
 		client.ReactToContext("DefaultWelcomeIntent-followup", 
 			context => Debug.Log("Reacting to welcome followup"));
+		client.AddInputContext(new DF2Context("userdata", 1, ("name", "George")), name);
 
 		Dictionary<string, object> parameters = new Dictionary<string, object>()
 		{
 			{ "name", "George" }
 		};
-		client.DetectIntentFromEvent("Welcome", parameters, "test");
+		client.DetectIntentFromEvent("test-inputcontexts", parameters, name);
     }
 
 	private void LogResponseText(DF2Response response)
 	{
+		Debug.Log(JsonConvert.SerializeObject(response, Formatting.Indented));
 		Debug.Log(name + " said: \"" + response.queryResult.fulfillmentText + "\"");
 		chatbotText.text = response.queryResult.fulfillmentText;
 	}

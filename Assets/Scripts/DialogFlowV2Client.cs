@@ -10,11 +10,12 @@ namespace Syrus.Plugins.DFV2Client
 {
 	public class DialogFlowV2Client : MonoBehaviour 
 	{
+		[SerializeField]
+		private ServiceSettings accessSettings;
 		/// <summary>
 		/// The object that defines the service settings.
 		/// </summary>
-		[SerializeField]
-		private ServiceSettings accessSettings;
+		public ServiceSettings AccessSettings { get { return accessSettings; } }
 
 		/// <summary>
 		/// Delegate for handling errors received after a detectIntent request.
@@ -43,13 +44,18 @@ namespace Syrus.Plugins.DFV2Client
 		/// A delegate for handling output contexts.
 		/// </summary>
 		/// <param name="outContext">The output context the client must react to.</param>
-		public delegate void OutputContextHandler(DF2OutputContext outContext);
+		public delegate void OutputContextHandler(DF2Context outContext);
 
 		/// <summary>
-		/// The set of <see cref="DF2OutputContext"/> the client must react to.
+		/// The set of <see cref="DF2Context"/> the client must react to.
 		/// </summary>
 		internal Dictionary<string, OutputContextHandler> reactionContexts =
 			new Dictionary<string, OutputContextHandler>();
+
+		/// <summary>
+		/// The list of input contexts to send to the next request.
+		/// </summary>
+		private List<DF2Context> inputContexts = new List<DF2Context>();
 
 		/// <summary>
 		/// The default detectIntent URL where project ID and session ID are missing. 
@@ -126,13 +132,21 @@ namespace Syrus.Plugins.DFV2Client
 			while (!JwtCache.TryGetToken(accessSettings.ServiceAccount, out accessToken))
 				yield return JwtCache.GetToken(accessSettings.CredentialsFileName,
 					accessSettings.ServiceAccount);
+			Debug.Log(accessToken);
 
 			// Prepares the HTTP request.
 			var settings = new JsonSerializerSettings();
 			settings.NullValueHandling = NullValueHandling.Ignore;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 			DF2Request request = new DF2Request(session, queryInput);
+
+			// Adds the input contexts.
+			request.QueryParams = new DF2QueryParams();
+			request.QueryParams.Contexts = inputContexts.ToArray();
+			inputContexts.Clear();
+
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
+			Debug.Log(jsonInput);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
 			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, accessSettings.ProjectId, session);
@@ -154,7 +168,7 @@ namespace Syrus.Plugins.DFV2Client
 				ChatbotResponded?.Invoke(resp);
 				for (int i = 0; i < resp.queryResult.outputContexts.Length; i++)
 				{
-					DF2OutputContext context = resp.queryResult.outputContexts[i];
+					DF2Context context = resp.queryResult.outputContexts[i];
 					string[] cName = context.Name.ToLower().Split('/');
 					if (reactionContexts.ContainsKey(cName[cName.Length - 1]))
 						reactionContexts[cName[cName.Length - 1]](context);
@@ -179,6 +193,19 @@ namespace Syrus.Plugins.DFV2Client
 		public void StopReactingToContext(string contextName)
 		{
 			reactionContexts.Remove(contextName);
+		}
+
+		/// <summary>
+		/// Adds an input context to the next request.
+		/// </summary>
+		/// <param name="inputContext">The input context to add.</param>
+		/// <param name="session">The current session ID.</param>
+		public void AddInputContext(DF2Context inputContext, string session)
+		{
+			if (!inputContext.Name.StartsWith("projects"))
+				inputContext.Name = string.Format(DF2Context.PARAMETRIC_CONTEXT_ID,
+					accessSettings.ProjectId, session, inputContext.Name);
+			inputContexts.Add(inputContext);
 		}
 	}
 }
