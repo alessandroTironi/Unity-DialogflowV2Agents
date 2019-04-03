@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Syrus.Plugins.DFV2Client;
 using Google.Cloud.Dialogflow.V2;
+using Newtonsoft.Json;
 
 public class DF2ClientTester : MonoBehaviour
 {
@@ -21,9 +22,10 @@ public class DF2ClientTester : MonoBehaviour
 		client.DetectIntentFromEvent("Welcome", parameters, "test");
     }
 
-	private void LogResponseText(QueryResult result)
+	private void LogResponseText(DF2Response response)
 	{
-		Debug.Log(name + " said: \"" + result.FulfillmentText + "\"");
+		Debug.Log(JsonConvert.SerializeObject(response, Formatting.Indented));
+		Debug.Log(name + " said: \"" + response.queryResult.FulfillmentText + "\"");
 	}
 
 	private void LogError(long responseCode, string errorMessage)

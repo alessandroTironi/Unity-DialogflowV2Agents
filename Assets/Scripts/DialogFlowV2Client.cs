@@ -18,12 +18,6 @@ namespace Syrus.Plugins.DFV2Client
 		internal string PROJECT_ID;
 
 		/// <summary>
-		/// The JSON Web Token (JWT) used for authentication.
-		/// </summary>
-		[SerializeField]
-		internal string ACCESS_TOKEN;
-
-		/// <summary>
 		/// The language used for the chatbot.
 		/// </summary>
 		[SerializeField]
@@ -45,7 +39,7 @@ namespace Syrus.Plugins.DFV2Client
 		/// Delegate for handling responses from the DF2 server.
 		/// </summary>
 		/// <param name="response">The received response.</param>
-		public delegate void ServerResponseHandler(QueryResult response);
+		public delegate void ServerResponseHandler(DF2Response response);
 
 		/// <summary>
 		/// Event fired at each response from the chatbot.
@@ -93,6 +87,19 @@ namespace Syrus.Plugins.DFV2Client
 		/// <param name="session">The session ID, i.e., the ID of the user who talks to the chatbot.</param>
 		private IEnumerator DetectIntent(DF2Request request, string session)
 		{
+			// Gets the JWT access token.
+			TextAsset p12File = Resources.Load<TextAsset>("DialogflowV2/smartrpgshop-ea4bb047937c");
+			var jwt = GoogleJsonWebToken.GetJwt("smartrpgshopclient@smartrpgshop.iam.gserviceaccount.com",
+				p12File.bytes,
+				GoogleJsonWebToken.SCOPE_DIALOGFLOWV2);
+			UnityWebRequest tokenRequest = GoogleJsonWebToken.GetAccessTokenRequest(jwt);
+			yield return tokenRequest.SendWebRequest();
+			if (tokenRequest.isNetworkError || tokenRequest.isHttpError)
+				Debug.LogError("Error " + tokenRequest.responseCode + ": " + tokenRequest.error);
+			string serializedToken = Encoding.UTF8.GetString(tokenRequest.downloadHandler.data);
+			var jwtJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(serializedToken);
+			Debug.Log(jwtJson["access_token"] + " expires in " + jwtJson["expires_in"]);
+
 			// Prepares the HTTP request.
 			var settings = new JsonSerializerSettings();
 			settings.NullValueHandling = NullValueHandling.Ignore;
@@ -102,7 +109,8 @@ namespace Syrus.Plugins.DFV2Client
 
 			string url = string.Format(PARAMETRIC_URL, PROJECT_ID, session);
 			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");
-			df2Request.SetRequestHeader("Authorization", "Bearer " + ACCESS_TOKEN);
+			
+			df2Request.SetRequestHeader("Authorization", "Bearer " + jwtJson["access_token"]);
 			df2Request.SetRequestHeader("Content-Type", "application/json");
 			df2Request.uploadHandler = new UploadHandlerRaw(body);
 			df2Request.downloadHandler = new DownloadHandlerBuffer();
@@ -114,8 +122,8 @@ namespace Syrus.Plugins.DFV2Client
 				DetectIntentError?.Invoke(df2Request.responseCode, df2Request.error);
 			else
 			{
-				string result = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
-				ChatbotResponded?.Invoke(JsonConvert.DeserializeObject<QueryResult>(result));
+				string response = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
+				ChatbotResponded?.Invoke(JsonConvert.DeserializeObject<DF2Response>(response));
 			}
 		}
 	}

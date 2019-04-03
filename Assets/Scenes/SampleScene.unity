@@ -238,7 +238,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PROJECT_ID: smartrpgshop
-  ACCESS_TOKEN: ya29.c.El_gBgqH7Xk8gDYqDw6jG3BSupD1BUNI0iL45XEHIgz8iE2Id0IhZBV2qo1PvjMQaPrzd9i7a1oQyXJaXf2AsQviSvFffsWCDdWWbrpd5Sv1HKgreq3JabwcNXwTUpLZrA
   LANGUAGE_CODE: en-US
 --- !u!1 &534669902
 GameObject:
