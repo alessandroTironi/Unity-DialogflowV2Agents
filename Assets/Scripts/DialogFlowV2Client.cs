@@ -144,7 +144,6 @@ namespace Syrus.Plugins.DFV2Client
 			while (!JwtCache.TryGetToken(accessSettings.ServiceAccount, out accessToken))
 				yield return JwtCache.GetToken(accessSettings.CredentialsFileName,
 					accessSettings.ServiceAccount);
-			Debug.Log(accessToken);
 
 			// Prepares the HTTP request.
 			var settings = new JsonSerializerSettings();
@@ -158,7 +157,6 @@ namespace Syrus.Plugins.DFV2Client
 			inputContexts.Clear();
 
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
-			Debug.Log(jsonInput);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
 			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, accessSettings.ProjectId, session);
