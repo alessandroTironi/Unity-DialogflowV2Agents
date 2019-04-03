@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using Google.Cloud.Dialogflow.V2;
-using Google.Protobuf.WellKnownTypes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -64,10 +62,12 @@ namespace Syrus.Plugins.DFV2Client
 			if (languageCode.Length == 0)
 				languageCode = this.languageCode;
 
-			QueryInput queryInput = new QueryInput();
-			queryInput.Text = new TextInput();
+			DF2QueryInput queryInput = new DF2QueryInput();
+			queryInput.Text = new DF2TextInput();
 			queryInput.Text.Text = text;
 			queryInput.Text.LanguageCode = languageCode;
+
+			StartCoroutine(DetectIntent(queryInput, talker));
 		}
 
 		/// <summary>
@@ -93,7 +93,7 @@ namespace Syrus.Plugins.DFV2Client
 		}
 
 		/// <summary>
-		/// Sends a <see cref="QueryInput"/> object as a HTTP request to the remote
+		/// Sends a <see cref="DF2QueryInput"/> object as a HTTP request to the remote
 		/// chatbot.
 		/// </summary>
 		/// <param name="queryInput">The input request.</param>

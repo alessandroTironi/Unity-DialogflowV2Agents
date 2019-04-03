@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Syrus.Plugins.DFV2Client;
 using Newtonsoft.Json;
-using Google.Cloud.Dialogflow.V2;
-using Google.Protobuf.WellKnownTypes;
+using Syrus.Plugins.DFV2Client;
+using UnityEngine.UI;
 
 public class DF2ClientTester : MonoBehaviour
 {
+	public InputField session, content;
+
+	public Text chatbotText;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,7 +28,8 @@ public class DF2ClientTester : MonoBehaviour
 	private void LogResponseText(DF2Response response)
 	{
 		Debug.Log(JsonConvert.SerializeObject(response, Formatting.Indented));
-		Debug.Log(name + " said: \"" + response.queryResult.queryText + "\"");
+		Debug.Log(name + " said: \"" + response.queryResult.fulfillmentText + "\"");
+		chatbotText.text = response.queryResult.fulfillmentText;
 	}
 
 	private void LogError(long responseCode, string errorMessage)
@@ -33,9 +37,16 @@ public class DF2ClientTester : MonoBehaviour
 		Debug.LogError(string.Format("Error {0}: {1}", responseCode.ToString(), errorMessage));
 	}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
+	public void SendText()
+	{
+		GetComponent<DialogFlowV2Client>().DetectIntentFromText(content.text, session.text);
+	}
+
+
+	public void SendEvent()
+	{
+		GetComponent<DialogFlowV2Client>().DetectIntentFromEvent(content.text,
+			new Dictionary<string, object>(), session.text);
+	}
 }
