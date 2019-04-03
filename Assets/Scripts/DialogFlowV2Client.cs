@@ -48,7 +48,7 @@ namespace Syrus.Plugins.DFV2Client
 		/// <summary>
 		/// The default detectIntent URL where project ID and session ID are missing. 
 		/// </summary>
-		internal static readonly string PARAMETRIC_URL = 
+		internal static readonly string PARAMETRIC_DETECT_INTENT_URL = 
 			"https://dialogflow.googleapis.com/v2/projects/{0}/agent/sessions/{1}:detectIntent";
 
 		/// <summary>
@@ -122,7 +122,7 @@ namespace Syrus.Plugins.DFV2Client
 			Debug.Log(jsonInput);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
-			string url = string.Format(PARAMETRIC_URL, projectId, session);
+			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, projectId, session);
 			UnityWebRequest df2Request = new UnityWebRequest(url, "POST");		
 			df2Request.SetRequestHeader("Authorization", "Bearer " + jwtJson["access_token"]);
 			df2Request.SetRequestHeader("Content-Type", "application/json");
