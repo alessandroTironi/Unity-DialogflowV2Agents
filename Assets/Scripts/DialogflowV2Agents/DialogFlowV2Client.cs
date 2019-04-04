@@ -5,18 +5,15 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using System;
 
 namespace Syrus.Plugins.DFV2Client
 {
 	public class DialogFlowV2Client : MonoBehaviour 
 	{
-		[SerializeField]
-		private ServiceSettings accessSettings;
 		/// <summary>
 		/// The object that defines the service settings.
 		/// </summary>
-		public ServiceSettings AccessSettings { get { return accessSettings; } }
+		public ServiceSettings accessSettings = null;
 
 		/// <summary>
 		/// Delegate for handling errors received after a detectIntent request.
