@@ -8,6 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Syrus.Plugins.DFV2Client
 {
+	[AddComponentMenu("Syrus/Plugins/DialogflowV2Agents/DialogFlowV2Client")]
 	public class DialogFlowV2Client : MonoBehaviour 
 	{
 		/// <summary>
