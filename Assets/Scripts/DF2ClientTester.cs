@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Syrus.Plugins.DFV2Client;
@@ -39,9 +39,10 @@ public class DF2ClientTester : MonoBehaviour
 		chatbotText.text = response.queryResult.fulfillmentText;
 	}
 
-	private void LogError(long responseCode, string errorMessage)
+	private void LogError(DF2ErrorResponse errorResponse)
 	{
-		Debug.LogError(string.Format("Error {0}: {1}", responseCode.ToString(), errorMessage));
+		Debug.LogError(string.Format("Error {0}: {1}", errorResponse.error.code.ToString(), 
+			errorResponse.error.message));
 	}
 
     

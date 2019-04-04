@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,9 +18,8 @@ namespace Syrus.Plugins.DFV2Client
 		/// <summary>
 		/// Delegate for handling errors received after a detectIntent request.
 		/// </summary>
-		/// <param name="errorCode">The HTTP response code.</param>
-		/// <param name="errorMessage">The HTTP error message.</param>
-		public delegate void DetectIntentErrorHandler(long errorCode, string errorMessage);
+		/// <param name="error">The error response.</param>
+		public delegate void DetectIntentErrorHandler(DF2ErrorResponse error);
 
 		/// <summary>
 		/// Event fired at each error received from DetectIntent.
@@ -167,7 +166,7 @@ namespace Syrus.Plugins.DFV2Client
 
 			// Processes response.
 			if (df2Request.isNetworkError || df2Request.isHttpError)
-				DetectIntentError?.Invoke(df2Request.responseCode, df2Request.error);
+				DetectIntentError?.Invoke(JsonConvert.DeserializeObject<DF2ErrorResponse>(df2Request.downloadHandler.text));
 			else
 			{
 				string response = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
