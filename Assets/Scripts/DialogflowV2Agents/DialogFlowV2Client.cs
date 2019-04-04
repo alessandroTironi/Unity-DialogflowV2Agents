@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -61,9 +61,14 @@ namespace Syrus.Plugins.DFV2Client
 			new Dictionary<string, OutputContextHandler>();
 
 		/// <summary>
-		/// The list of input contexts to send to the next request.
+		/// The list of input contexts to send in the next request.
 		/// </summary>
 		private List<DF2Context> inputContexts = new List<DF2Context>();
+
+		/// <summary>
+		/// The list of entities to send in the next request.
+		/// </summary>
+		private List<DF2EntityType> inputEntities = new List<DF2EntityType>();
 
 		/// <summary>
 		/// The default detectIntent URL where project ID and session ID are missing. 
@@ -147,10 +152,12 @@ namespace Syrus.Plugins.DFV2Client
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 			DF2Request request = new DF2Request(session, queryInput);
 
-			// Adds the input contexts.
+			// Adds the input contexts and the entities.
 			request.QueryParams = new DF2QueryParams();
 			request.QueryParams.Contexts = inputContexts.ToArray();
 			inputContexts.Clear();
+			request.QueryParams.SessionEntityTypes = inputEntities.ToArray();
+			inputEntities.Clear();
 
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
@@ -212,6 +219,15 @@ namespace Syrus.Plugins.DFV2Client
 				inputContext.Name = string.Format(DF2Context.PARAMETRIC_CONTEXT_ID,
 					accessSettings.ProjectId, session, inputContext.Name);
 			inputContexts.Add(inputContext);
+		}
+
+
+		public void AddEntityType(DF2EntityType entityType, string session)
+		{
+			if (!entityType.Name.StartsWith("projects"))
+				entityType.Name = string.Format(DF2EntityType.PARAMETRIC_ENTITY_TYPE_NAME,
+					accessSettings.ProjectId, session, entityType.Name);
+			inputEntities.Add(entityType);
 		}
 
 		/// <summary>

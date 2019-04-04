@@ -21,11 +21,13 @@ namespace Syrus.Plugins.DFV2Client
 		}
 	}
 
-
 	[JsonObject]
 	public class DF2QueryParams
 	{
 		[JsonProperty]
 		public DF2Context[] Contexts { get; set; }
+
+		[JsonProperty]
+		public DF2EntityType[] SessionEntityTypes { get; set; }
 	}
 }
