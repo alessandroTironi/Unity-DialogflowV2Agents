@@ -17,27 +17,28 @@ public class DF2ClientTester : MonoBehaviour
     {
 		client = GetComponent<DialogFlowV2Client>();
 
-		client.ChatbotResponded += LogResponseText;
+        // Adjustes session name if it is blank.
+        string sessionName = GetSessionName();
+
+        client.ChatbotResponded += LogResponseText;
 		client.DetectIntentError += LogError;
 		client.ReactToContext("DefaultWelcomeIntent-followup", 
 			context => Debug.Log("Reacting to welcome followup"));
 		client.SessionCleared += sess => Debug.Log("Cleared session " + session);
-		client.AddInputContext(new DF2Context("userdata", 1, ("name", "George")), name);
-
-		
+		client.AddInputContext(new DF2Context("userdata", 1, ("name", "George")), sessionName);
 
 		Dictionary<string, object> parameters = new Dictionary<string, object>()
 		{
 			{ "name", "George" }
 		};
-		client.DetectIntentFromEvent("test-inputcontexts", parameters, name);
+		client.DetectIntentFromEvent("test-inputcontexts", parameters, sessionName);
 
     }
 
 	private void LogResponseText(DF2Response response)
 	{
 		Debug.Log(JsonConvert.SerializeObject(response, Formatting.Indented));
-		Debug.Log(name + " said: \"" + response.queryResult.fulfillmentText + "\"");
+		Debug.Log(GetSessionName() + " said: \"" + response.queryResult.fulfillmentText + "\"");
 		chatbotText.text = response.queryResult.fulfillmentText;
 	}
 
@@ -58,21 +59,32 @@ public class DF2ClientTester : MonoBehaviour
 			new DF2Entity[] { name0, name1 });
 		DF2EntityType items = new DF2EntityType("items", DF2EntityType.DF2EntityOverrideMode.ENTITY_OVERRIDE_MODE_SUPPLEMENT,
 			new DF2Entity[] { potion, antidote });
-		client.AddEntityType(names, name);
-		client.AddEntityType(items, name);
 
-		client.DetectIntentFromText(content.text, session.text);
+        string sessionName = GetSessionName();
+        client.AddEntityType(names, sessionName);
+		client.AddEntityType(items, sessionName);
+
+		client.DetectIntentFromText(content.text, sessionName);
 	}
 
 
 	public void SendEvent()
 	{
-		client.DetectIntentFromEvent(content.text,
-			new Dictionary<string, object>(), session.text);
+        client.DetectIntentFromEvent(content.text,
+			new Dictionary<string, object>(), GetSessionName());
 	}
 
 	public void Clear()
 	{
-		client.ClearSession(name);
+        client.ClearSession(GetSessionName());
 	}
+
+
+    private string GetSessionName(string defaultFallback = "DefaultSession")
+    {
+        string sessionName = session.text;
+        if (sessionName.Trim().Length == 0)
+            sessionName = defaultFallback;
+        return sessionName;
+    }
 }
