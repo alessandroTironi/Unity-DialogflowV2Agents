@@ -6,9 +6,9 @@ This library has been designed to be lightweight, so we do not include the DFV2 
 
 ### Set up
 
-First, you need to install the library DLL (Syrus.Plugins.DialogflowV2Agents.dll) and the required Newtonsoft.Json.dll in the `Assets/Plugins` folder. Note that, in order to use the Newtonsoft.Json.dll, you need a version of Unity that supports the version 4.X of the .NET framework. 
+First, you need to install the DLL (Syrus.Plugins.DialogflowV2Agents.dll) and the required Newtonsoft.Json.dll in the `Assets/Plugins` folder. Note that, in order to use the Newtonsoft.Json.dll, you need a version of Unity that supports the version 4.X of the .NET framework. 
 
-After having installed the plugin, create a folder named `DialogflowV2` in the `Assets/Resources` directory and place a .p12 private access key file associated to the GCP service account you want to use for the chatbot client. I suggest to create a dedicated service account for your chatbot clients. After having generated a .p12 file and having placed it into the `DialogflowV2` folder, rename it to change its extension from `.p12` to `.bytes`, otherwise the Unity Resources Manager will not be able to read it. 
+After having installed the plugin, create a folder named `DialogflowV2` in the `Assets/Resources` directory and place a .p12 private access key file associated to the GCP service account you want to use for the chatbot client. I suggest to create a dedicated service account for your chatbot clients. After having generated a .p12 file and having placed it into the `DialogflowV2` folder, rename it to change its extension from `.p12` to `.bytes`, otherwise the Unity Resources Manager will not be able to read it. Major details on JWT-based authentication and Unity are provided in [this blog post](https://alessandrotironigamedev.com/2019/04/20/implementing-chatbots-in-your-unity-project-with-dialogflow-v2/). 
 
 ### Detecting intents
 
