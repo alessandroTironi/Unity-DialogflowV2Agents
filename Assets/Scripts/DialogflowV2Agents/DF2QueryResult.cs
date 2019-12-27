@@ -31,7 +31,7 @@ namespace Syrus.Plugins.DFV2Client
 		public Dictionary<string, object> intent { get; set; }
 
 		[JsonProperty]
-		public int intentDetectionConfidence { get; set; }
+		public float intentDetectionConfidence { get; set; }
 
 		[JsonProperty]
 		public string languageCode { get; set; }
