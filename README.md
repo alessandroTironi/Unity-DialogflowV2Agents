@@ -2,7 +2,12 @@
 
 Package for implementing [Dialogflow](https://dialogflow.com/) V2 clients in a Unity project. This package provides a MonoBehaviour script which turns a gameobject into a client for a Dialogflow chatbot that uses the V2 APIs described [here](https://cloud.google.com/dialogflow-enterprise/docs/reference/rest/v2-overview) by Google. Since this library is meant to be used only to implement DFV2 clients, it is only possible to query a chatbot by sending text or an event, with optional additional input contexts and/or entities. For additional functionalities (e.g., creating new intents) I suggest to use the official [SDK](https://developers.google.com/api-client-library/dotnet/apis/dialogflow/v2), or your Dialogflow bot page.
 
-This library has been designed to be lightweight, so we do not include the DFV2 SDK as an additional plugins (which is more than 7MB including all its references), but it exclusively relies on HTTP requests. Thanks to [this post](http://leoncvlt.com/blog/json-web-token-jwt-for-google-cloud-platform-in-unity/) from Leonardo Cavaletti for helping me in understanding the Google JWT authentication process and thanks to [this DFV2 client project](https://unitylist.com/p/i1a/dialogflow-2.0-Unity-client), which enlightened me on the DFV2 HTTP requests format.
+This library has been designed to be lightweight, so it does not require the DFV2 SDK as an additional plugin (which is more than 7MB including all its references), but it exclusively relies on HTTP requests. Thanks to [this post](http://leoncvlt.com/blog/json-web-token-jwt-for-google-cloud-platform-in-unity/) from Leonardo Cavaletti for helping me in understanding the Google JWT authentication process and thanks to [this DFV2 client project](https://unitylist.com/p/i1a/dialogflow-2.0-Unity-client), which enlightened me on the DFV2 HTTP requests format.
+
+#### Tested on 
+* Windows Standalone
+* Android
+* iOS
 
 ### Set up
 
