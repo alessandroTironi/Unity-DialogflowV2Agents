@@ -12,6 +12,8 @@ namespace Syrus.Plugins.DFV2Client
 		public DF2TextInput Text { get; set; }
 
 		public DF2EventInput Event { get; set; }
+		
+		public DF2AudioConfig AudioConfig { get; set; }
 	}
 }
 

@@ -37,3 +37,4 @@ sysinfo.txt
 /Assets/StreamingAssets/ActivityResults/CompletedActivities.json
 /Assets/StreamingAssets/ActivityResults/*
 /Assets/StreamingAssets/Audio/TTS/*
+.idea/

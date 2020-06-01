@@ -95,6 +95,26 @@ namespace Syrus.Plugins.DFV2Client
 
 			StartCoroutine(DetectIntent(queryInput, talker));
 		}
+		
+		//@hoatong
+		/// <summary>
+		/// Makes a POST request to Dialogflow for detecting an intent from text.
+		/// </summary>
+		/// <param name="talker">The ID of the entity who is talking to the bot.</param>
+		/// <param name="languageCode">The language code of the request.</param>
+		public void DetectIntentFromAudio(string audio64, string talker, string languageCode = "")
+		{
+			if (languageCode.Length == 0)
+				languageCode = accessSettings.LanguageCode;
+
+			DF2QueryInput queryInput = new DF2QueryInput();
+
+			queryInput.AudioConfig = new DF2AudioConfig();
+			
+			queryInput.AudioConfig.LanguageCode = languageCode;
+			
+			StartCoroutine(DetectIntent(queryInput, talker, audio64));
+		}
 
 		/// <summary>
 		/// Makes a POST request to Dialogflow for detecting an intent from an event.
@@ -139,7 +159,7 @@ namespace Syrus.Plugins.DFV2Client
 		/// </summary>
 		/// <param name="queryInput">The input request.</param>
 		/// <param name="session">The session ID, i.e., the ID of the user who talks to the chatbot.</param>
-		private IEnumerator DetectIntent(DF2QueryInput queryInput, string session)
+		private IEnumerator DetectIntent(DF2QueryInput queryInput, string session, string audio ="")
 		{
 			// Gets the JWT access token.
 			string accessToken = string.Empty;
@@ -159,8 +179,19 @@ namespace Syrus.Plugins.DFV2Client
 			inputContexts.Clear();
 			request.QueryParams.SessionEntityTypes = inputEntities.ToArray();
 			inputEntities.Clear();
+			
+			//@hoatong
+			// Add audio string
+			
+			request.OutputAudioConfig = new DF2OutputAudioConfig();
+			request.OutputAudioConfig.AudioEncoding = "OUTPUT_AUDIO_ENCODING_LINEAR_16";
+
+			request.InputAudio = audio;
 
 			string jsonInput = JsonConvert.SerializeObject(request, settings);
+			
+			Debug.Log("Json: "+ jsonInput);
+			
 			byte[] body = Encoding.UTF8.GetBytes(jsonInput);
 
 			string url = string.Format(PARAMETRIC_DETECT_INTENT_URL, accessSettings.ProjectId, session);
@@ -180,12 +211,14 @@ namespace Syrus.Plugins.DFV2Client
 				string response = Encoding.UTF8.GetString(df2Request.downloadHandler.data);
 				DF2Response resp = JsonConvert.DeserializeObject<DF2Response>(response);
 				ChatbotResponded?.Invoke(resp);
-				for (int i = 0; i < resp.queryResult.outputContexts.Length; i++)
+				if(resp.queryResult.outputContexts !=null)
 				{
-					DF2Context context = resp.queryResult.outputContexts[i];
-					string[] cName = context.Name.ToLower().Split('/');
-					if (reactionContexts.ContainsKey(cName[cName.Length - 1]))
-						reactionContexts[cName[cName.Length - 1]](context);
+					foreach (var context in resp.queryResult.outputContexts)
+					{
+						string[] cName = context.Name.ToLower().Split('/');
+						if (reactionContexts.ContainsKey(cName[cName.Length - 1]))
+							reactionContexts[cName[cName.Length - 1]](context);
+					}
 				}
 			}
 		}
