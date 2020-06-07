@@ -59,6 +59,17 @@ private void LogError(long responseCode, string errorMessage)
 
 The `sessionName` is a string that identifies a dialog session and it is used by Dialogflow to store the state of a conversation. 
 
+#### Intent detection through audio
+
+Use the AudioRecorder component to record audio data from the microphone into a .WAV file and send it to the chatbot. The plugin includes a WavUtility class that allows audio byte streams manipulation.
+
+```csharp
+string talker = "MyID";
+byte[] audioBytes = WavUtility.FromAudioClip(audioRecorder.recordedAudioClip);
+string audioString = Convert.ToBase64String (audioBytes);
+DetectIntentFromAudio(audioString, talker);
+```
+
 ### Adding input contexts and entities
 
 To provide additional input contexts to the next DFV2 request, you need to invoke the `DialogflowV2Client.AddInputContext(DF2Context context, string sessionName)` and provide a new context that will be sent in the next intent detection request. 
